@@ -5,13 +5,13 @@
 import random
 from expyriment import design, control, stimuli, io 
 
-N_TRIALS = 10
-NUM_FLASH=3
-NUM_BEEPS = 5  # Variable number of auditory beeps
+N_TRIALS = 15
+MAX_FLASH=4
+MAX_BEEPS = 4 # Variable number of auditory beeps
 FLASH_DURATION= 50
 BEEP_INTERVAL= 57
 MAX_RESPONSE_DELAY = 2000
-aud="click.wav" #I used your audio file, the one I had before didn't play
+aud="beep.wav" #I used your audio file, the one I had before didn't play
 
 #Calculate the screen coordinates for 5 degrees eccentricity, I used the numbers that ChatGPT provided to me
 eccentricity_degrees = 5
@@ -40,26 +40,43 @@ There will be {N_TRIALS} trials in total.
 
 Press the spacebar to start.""")
 
-exp.add_data_variable_names(["trial", "reported_flashes"])
+exp.add_data_variable_names(["trial", "beeps", "flashes", "response_flashes"])
+
+#A list of flash and beep combinations
+combinations = []
+for f in range(1, MAX_FLASH + 1):
+    for b in range(1, MAX_BEEPS + 1):
+        combinations.append((f, b))
+
+combinations.append((1,1))
+combinations.append((1,2))
+combinations.append((1,3))
+combinations.append((1,4))
+combinations = combinations * 2
+
+random.seed(42)
+
+random.shuffle(combinations)
+
 
 # Start the experiment
 control.start()
 
+
 # Present visual and audio stimuli N times
 
-
 # First display visual stimuli random amount of times in each trial
-for trial in range(N_TRIALS):
-    rand_flash=random.randint(1, NUM_FLASH)
-    rand_beeps=random.randint(1, NUM_BEEPS)
-    for f in range(rand_flash):
+#create factorials - to have same numer of beeps and flashes for each participant but in random order
+#you can try to avoid priming effects by adjusting that the same num of flashes and beeps doesn't
+for trial, (flashes, beeps) in enumerate(combinations, start=1):
+    for f in range(flashes):
         exp.screen.clear()
         blankscreen.present()
         visual_stimulus.present()
         exp.clock.wait(FLASH_DURATION)
 
 # Present audio stimuli after each flash, with randomized number of beeps between 1 and 5
-        for i in range(rand_beeps):
+        for i in range(beeps):
             audio_stimulus.present()
             exp.clock.wait(BEEP_INTERVAL)
 
@@ -68,7 +85,7 @@ for trial in range(N_TRIALS):
     exp.screen.clear()
     text_input = io.TextInput("How many flashes did you see?")
     response = text_input.get()
-    exp.data.add([trial, response])
+    exp.data.add([trial, beeps, flashes, response])
 
 
 # End the experiment
