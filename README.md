@@ -12,8 +12,9 @@ Visual ilusion induced by sound - auditory information can qualitatively alter t
 *Result:* Observers consistently and incorrectly reported seeing multiple flashes whenever a single flash was accompanied by more than one beep.
 
 ## **Code**
-*Libraries and variables*:
-'''
+*Libraries and variables:*
+
+```
 import random
 from expyriment import design, control, stimuli, io, misc
 
@@ -24,11 +25,12 @@ WAIT_AFTER_FIRST_BEEP=16
 FLASH_INTERVAL=55
 MAX_RESPONSE_DELAY = 2000
 WHITE=(255,255,255)
+```
 
-'''
 *Stimuli:*
 *Visual Stimulus*
-'''
+
+```
 #Calculate the screen coordinates for 5 degrees eccentricity, I used the numbers that ChatGPT provided to me
 eccentricity_degrees = 5
 pixels_per_degree = 28
@@ -41,9 +43,10 @@ eccentricity_screen_coordinates = (eccentricity_pixels, 0)
 #visual stimulus
 visual_stimulus = stimuli.Circle(radius=50, colour=WHITE, position=eccentricity_screen_coordinates, )  #stimuli positied according to the eccentricity
 
-'''
+```
 *Audio Stimuli:*
 
+```
 #pre-recorded audio stimuli with 1-4 beeps
 beeps= {
     1: stimuli.Audio('beep-1.wav'),
@@ -69,10 +72,10 @@ random.shuffle(combinations)
 
 #number of trials
 N_TRIALS = len(combinations)
-'''
+```
 
 *Experimental design:*
-'''
+```
 exp = design.Experiment(name="Audiovisual", text_size=40)
 control.set_develop_mode(on=True)
 
@@ -96,9 +99,10 @@ heading_bold=True, heading_size=55, text_size=36, text_italic=True, text_colour=
 
 exp.add_data_variable_names(["trial", "nflashes", "nbeeps", "response_flashes"])
 
-'''
+```
 *The Experiment:*
-'''
+
+```
 # Start of the experiment
 control.start()
 instructions.present()
@@ -129,5 +133,4 @@ for trial, (n_flashes, n_beeps) in enumerate(combinations, start=1):
 
 # End the experiment
 control.end()
-
-'''
+```
