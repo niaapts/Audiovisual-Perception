@@ -1,13 +1,10 @@
-#Most of this works
-#I need to change: audio file
-#unsure of (duration between flashes and beeps)
 
 import random
 from expyriment import design, control, stimuli, io, misc
 
 #All the needed variables
 MAX_FLASH=4
-MAX_BEEPS = 4 # Variable number of auditory beeps
+MAX_BEEPS = 4 
 WAIT_AFTER_FIRST_BEEP=16
 FLASH_INTERVAL=55
 MAX_RESPONSE_DELAY = 2000
@@ -22,13 +19,11 @@ viewing_distance_cm = 57
 eccentricity_pixels = eccentricity_degrees * pixels_per_degree
 eccentricity_screen_coordinates = (eccentricity_pixels, 0)  
 
-#experimental design
-exp = design.Experiment(name="Audiovisual", text_size=40)
-control.set_develop_mode(on=True)
+#visual stimulus positied according to the eccentricity
+visual_stimulus = stimuli.Circle(radius=50, colour=WHITE, position=eccentricity_screen_coordinates)
 
-control.initialize(exp)
 
-#audio stimuli with 1-4 beeps
+#pre-recorded audio stimuli with 1-4 beeps
 beeps= {
     1: stimuli.Audio('beep-1.wav'),
     2: stimuli.Audio('beep-2.wav'),
@@ -41,28 +36,31 @@ for f in range(1, MAX_FLASH + 1):
     for b in range(1, MAX_BEEPS + 1):
         combinations.append((f, b))
 
+#added several with 1 flash and 1-4 beeps
 for b in range(1, 5):
     combinations.append((1, b))
 
 combinations = combinations * 2
-random.seed(32)
 
+#randomized the flash-beep combinations
+random.seed(32)
 random.shuffle(combinations)
 
 #number of trials
 N_TRIALS = len(combinations)
 
+#experimental design
+exp = design.Experiment(name="Audiovisual", text_size=40)
+control.set_develop_mode(on=True)
+
+control.initialize(exp)
+
 #fixation cross added
 fixation_cross = stimuli.FixCross(size=(24,24), colour=WHITE)
-
-#visual stimulus
-visual_stimulus = stimuli.Circle(radius=50, colour=WHITE, position=eccentricity_screen_coordinates, )  #stimuli positied according to the eccentricity
 
 blankscreen = stimuli.BlankScreen()
 
 #Instructions for the participants, variables for data file
-
-#exp_fonts=expyriment.misc.list_fonts()
 
 instructions = stimuli.TextScreen("Instructions",
     f"""You will see a circle accompanied by sound. 
@@ -82,7 +80,7 @@ instructions.present()
 exp.keyboard.wait()
 
 #looping through flashes and beeps, 
-#inside the main loop starting with the beeps and adjusting the wait time before the first flash
+#Starting with the beeps and adjusting the wait time before the first flash
 for trial, (n_flashes, n_beeps) in enumerate(combinations, start=1):
 
     fixation_cross.present()
@@ -98,7 +96,8 @@ for trial, (n_flashes, n_beeps) in enumerate(combinations, start=1):
         exp.clock.wait(FLASH_INTERVAL)
 
     exp.clock.wait(500) #wait after stimuli for half a second
-    #getting participant's answer
+
+    #getting participant's answers
     text_input = io.TextInput("How many flashes did you see?", message_colour=WHITE, user_text_colour= WHITE)
     response = text_input.get()
     exp.data.add([trial, n_flashes, n_beeps, response])
